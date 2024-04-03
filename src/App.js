@@ -4,6 +4,17 @@ import './App.css';
 
 import { useState } from 'react';
 
+// {{{ Constants and common functions
+//     these are not React components
+const BLACK = 1;
+const WHITE = -1;
+const EMPTY = 0;
+
+function coord(x, y) {
+  return x + y * 8;
+}
+// }}}
+
 function BlackStone() {
   return <div className="black"></div>;
 }
@@ -19,9 +30,9 @@ function Empty() {
 function Square({ row, column, value, onSquareClick }) {
   let content;
 
-  if (value === 1) {
+  if (value === BLACK) {
     content = <BlackStone />;
-  } else if (value == -1) {
+  } else if (value == WHITE) {
     content = <WhiteStone />;
   } else {
     content = <Empty />;
@@ -44,13 +55,14 @@ Square.propTypes = {
 function Board({currentPlayer, boardData, onPlay}) {
   function handleClick(i) {
     // check if game ends
-
+    
     const nextBoardData = boardData.slice();
 
-    if (nextBoardData[i] === 0) { // Is it empty?
-      nextBoardData[i] = (currentPlayer === 'B' ? 1 : -1);
+    if (nextBoardData[i] !== EMPTY) { // Is it empty?
+      return
     }
 
+    nextBoardData[i] = (currentPlayer === 'B' ? BLACK : WHITE);
     onPlay(nextBoardData);
   }
 
@@ -115,8 +127,8 @@ BoardAreaFooter.propTypes = {
 
 function BoardArea({currentPlayer, boardData, onPlay, onUndo, onReset}) {
   let currentPlayerName = (currentPlayer === 'B') ? 'Black' : 'White';
-  let nrBlackStones = boardData.filter((v) => v === 1).length;
-  let nrWhiteStones = boardData.filter((v) => v === -1).length;
+  let nrBlackStones = boardData.filter((v) => v === BLACK).length;
+  let nrWhiteStones = boardData.filter((v) => v === WHITE).length;
 
   return (
     <div>
@@ -150,8 +162,8 @@ function Game() {
 
   function createHistory() {
     let initBoard = Array(64).fill(0);
-    initBoard[3 * 8 + 3] = initBoard[4 * 8 + 4] = -1;
-    initBoard[3 * 8 + 4] = initBoard[4 * 8 + 3] = 1;
+    initBoard[coord(3, 3)] = initBoard[coord(4, 4)] = WHITE;
+    initBoard[coord(4, 3)] = initBoard[coord(3, 4)] = BLACK;
     return [initBoard]; // history is an array of board data
   }
 
