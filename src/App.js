@@ -140,13 +140,20 @@ BoardArea.propTypes = {
 };
 
 function Game() {
-  const [history, setHistory] = useState([Array(64).fill(0)]);
+  const [history, setHistory] = useState(() => createHistory());
   const [currentMove, setCurrentMove] = useState(0);
   const currentBoardData = history[currentMove];
 
   // currentPlayer could be derived from state 'currentMove'
   // We should avoid redundant states
   const currentPlayer = currentMove % 2 == 0 ? 'B' : 'W';
+
+  function createHistory() {
+    let initBoard = Array(64).fill(0);
+    initBoard[3 * 8 + 3] = initBoard[4 * 8 + 4] = -1;
+    initBoard[3 * 8 + 4] = initBoard[4 * 8 + 3] = 1;
+    return [initBoard]; // history is an array of board data
+  }
 
   function handlePlay(nextBoardData) {
     const nextHistory = [...history.slice(0, currentMove + 1), nextBoardData];
