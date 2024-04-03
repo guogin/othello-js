@@ -1,118 +1,178 @@
-import logo from './logo.svg';
+import React from 'react';
+import PropTypes from 'prop-types';
 import './App.css';
 
 import { useState } from 'react';
 
-function Square({ value, onSquareClick }) {
-  return (
-    <button className="square" onClick={onSquareClick}>
-      {value}
-    </button>
-  );
+function BlackStone() {
+  return <div className="black"></div>;
 }
 
-function Board({ xIsNext, squares, onPlay }) {
-  function handleClick(i) {
-    if (calculateWinner(squares) || squares[i]) {
-      return;
-    }
-    const nextSquares = squares.slice();
-    if (xIsNext) {
-      nextSquares[i] = 'X';
-    } else {
-      nextSquares[i] = 'O';
-    }
-    onPlay(nextSquares);
-  }
+function WhiteStone() {
+  return <div className="white"></div>;
+}
 
-  const winner = calculateWinner(squares);
-  let status;
-  if (winner) {
-    status = 'Winner: ' + winner;
+function Empty() {
+  return <div>{true}</div>;
+}
+
+function Square({ row, column, value, onSquareClick }) {
+  let content;
+
+  if (value === 1) {
+    content = <BlackStone />;
+  } else if (value == -1) {
+    content = <WhiteStone />;
   } else {
-    status = 'Next player: ' + (xIsNext ? 'X' : 'O');
+    content = <Empty />;
   }
 
   return (
-    <>
-      <div className="status">{status}</div>
-      <div className="board-row">
-        <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
-        <Square value={squares[1]} onSquareClick={() => handleClick(1)} />
-        <Square value={squares[2]} onSquareClick={() => handleClick(2)} />
-      </div>
-      <div className="board-row">
-        <Square value={squares[3]} onSquareClick={() => handleClick(3)} />
-        <Square value={squares[4]} onSquareClick={() => handleClick(4)} />
-        <Square value={squares[5]} onSquareClick={() => handleClick(5)} />
-      </div>
-      <div className="board-row">
-        <Square value={squares[6]} onSquareClick={() => handleClick(6)} />
-        <Square value={squares[7]} onSquareClick={() => handleClick(7)} />
-        <Square value={squares[8]} onSquareClick={() => handleClick(8)} />
-      </div>
-    </>
-  );
-}
-
-export default function Game() {
-  const [history, setHistory] = useState([Array(9).fill(null)]);
-  const [currentMove, setCurrentMove] = useState(0);
-  const xIsNext = currentMove % 2 === 0;
-  const currentSquares = history[currentMove];
-
-  function handlePlay(nextSquares) {
-    const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
-    setHistory(nextHistory);
-    setCurrentMove(nextHistory.length - 1);
-  }
-
-  function jumpTo(nextMove) {
-    setCurrentMove(nextMove);
-  }
-
-  const moves = history.map((squares, move) => {
-    let description;
-    if (move > 0) {
-      description = 'Go to move #' + move;
-    } else {
-      description = 'Go to game start';
-    }
-    return (
-      <li key={move}>
-        <button onClick={() => jumpTo(move)}>{description}</button>
-      </li>
-    );
-  });
-
-  return (
-    <div className="game">
-      <div className="game-board">
-        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
-      </div>
-      <div className="game-info">
-        <ol>{moves}</ol>
-      </div>
+    <div id={`${row}${column}`} className="square" onClick={onSquareClick}>
+      {content}
     </div>
   );
 }
 
-function calculateWinner(squares) {
-  const lines = [
-    [0, 1, 2],
-    [3, 4, 5],
-    [6, 7, 8],
-    [0, 3, 6],
-    [1, 4, 7],
-    [2, 5, 8],
-    [0, 4, 8],
-    [2, 4, 6],
-  ];
-  for (let i = 0; i < lines.length; i++) {
-    const [a, b, c] = lines[i];
-    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
-    }
-  }
-  return null;
+Square.propTypes = {
+  row: PropTypes.number,
+  column: PropTypes.number,
+  value: PropTypes.number,
+  onSquareClick: PropTypes.func,
 }
+
+function Board({currentPlayer, boardData, onPlay}) {
+  function handleClick(i) {
+    // check if game ends
+
+    const nextBoardData = boardData.slice();
+
+    if (nextBoardData[i] === 0) { // Is it empty?
+      nextBoardData[i] = (currentPlayer === 'B' ? 1 : -1);
+    }
+
+    onPlay(nextBoardData);
+  }
+
+  let content = boardData.map((item, index) => {
+    let row = Math.floor(index / 8);
+    let column = index % 8;
+    return (
+      <div key={`${row}${column}`}>
+        <Square row={row} 
+          column={column} 
+          value={item} 
+          onSquareClick={() => handleClick(index)} />
+      </div>
+    );
+  });
+
+  return (
+    <section className='board'>
+      {content}
+    </section>
+  );
+}
+
+Board.propTypes = {
+  currentPlayer: PropTypes.string,
+  boardData: PropTypes.array,
+  onPlay: PropTypes.func,
+}
+
+function BoardAreaHeader({ currentPlayerName, nrBlackStones, nrWhiteStones}) {
+  return (
+    <header>
+      <h1>Othello</h1>
+      <h2 className='whos-turn'>{currentPlayerName}&apos;s turn</h2>
+      <h3 className="score-board">
+        <span>Blacks: {nrBlackStones}</span>
+        <span>Whites: {nrWhiteStones}</span>
+      </h3>
+    </header>
+  );
+}
+
+BoardAreaHeader.propTypes = {
+  currentPlayerName: PropTypes.string,
+  nrBlackStones: PropTypes.number,
+  nrWhiteStones: PropTypes.number,
+};
+
+function BoardAreaFooter({onUndo, onReset}) {
+  return (
+    <footer>
+      <button className="button undo" onClick={onUndo}>Undo</button>
+      <button className="button reset" onClick={onReset}>Reset</button>
+    </footer>
+  );
+}
+
+BoardAreaFooter.propTypes = {
+  onUndo: PropTypes.func,
+  onReset: PropTypes.func,
+};
+
+function BoardArea({currentPlayer, boardData, onPlay, onUndo, onReset}) {
+  let currentPlayerName = (currentPlayer === 'B') ? 'Black' : 'White';
+  let nrBlackStones = boardData.filter((v) => v === 1).length;
+  let nrWhiteStones = boardData.filter((v) => v === -1).length;
+
+  return (
+    <div>
+      <BoardAreaHeader currentPlayerName={currentPlayerName} 
+        nrBlackStones={nrBlackStones}
+        nrWhiteStones={nrWhiteStones}/>
+      <Board currentPlayer={currentPlayer} 
+        boardData={boardData} 
+        onPlay={onPlay} />
+      <BoardAreaFooter onUndo={onUndo} onReset={onReset}/>
+    </div>
+  );
+}
+
+BoardArea.propTypes = {
+  currentPlayer: PropTypes.string,
+  boardData: PropTypes.array,
+  onPlay: PropTypes.func,
+  onUndo: PropTypes.func,
+  onReset: PropTypes.func, 
+};
+
+function Game() {
+  const [history, setHistory] = useState([Array(64).fill(0)]);
+  const [currentMove, setCurrentMove] = useState(0);
+  const currentBoardData = history[currentMove];
+
+  // currentPlayer could be derived from state 'currentMove'
+  // We should avoid redundant states
+  const currentPlayer = currentMove % 2 == 0 ? 'B' : 'W';
+
+  function handlePlay(nextBoardData) {
+    const nextHistory = [...history.slice(0, currentMove + 1), nextBoardData];
+    setHistory(nextHistory);
+    setCurrentMove(nextHistory.length - 1);
+  }
+
+  function handleUndo() {
+    let previousMove = Math.max(currentMove - 1, 0);
+    setCurrentMove(previousMove);
+  }
+
+  function handleReset() {
+    setCurrentMove(0);
+  }
+
+  return (
+    <body id='play'>
+      <BoardArea currentPlayer={currentPlayer}
+        boardData={currentBoardData} 
+        onPlay={handlePlay} 
+        onUndo={handleUndo} 
+        onReset={handleReset} />
+    </body>
+  );
+
+}
+
+export default Game;
