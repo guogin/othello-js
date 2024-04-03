@@ -1,38 +1,147 @@
-.App {
+:root {
+  --square-size: 50px
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body#play {
+  display: flex;
+  height: 100vh;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  background-color: #ddd;
+  font-family: "Libre Franklin";
+}
+
+#play {
+  background: linear-gradient(145deg, #fff 0%, #fff 50%, #000 50%, #000 100%);
+}
+
+#play h2 {
   text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+article {
+  font-family: "Libre Baskerville";
+  text-align: left;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+h1 {
+  font-size: 5rem;
+  font-weight: 800;
+  margin: 0;
+  padding: 5px 0;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+h2 {
+  text-align: left;
+}
+
+.board {
+  display: grid;
+  gap: 3px;
+  grid-template: repeat(8, 1fr) / repeat(8, 1fr);
+  border: 10px solid #000;
+  border-radius: 10px;
+  background-color: #000;
+  color: #fff;
+  outline: 2px solid #fff;
+}
+
+.square {
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+  align-items: center;
+  width: var(--square-size);
+  height: var(--square-size);
+  background-color: rgb(0, 128, 0);
+  /* 
+  border-bottom: 2px solid rgb(0, 150, 0);
+  border-right: 2px solid rgb(0, 150, 0);
+ */
+}
+
+.square:hover {
+  cursor: pointer;
+  /*   background-color: rgb(0, 128, 0, 0.5); */
+}
+
+
+.disabled:hover {
+  background-color: rgb(0, 128, 0);
+}
+
+.valid:hover {
+  cursor: pointer;
+  background-color: rgb(0, 128, 0, 0.5);
+}
+
+.black,
+.white {
+  border-radius: 50%;
+  height: calc(var(--square-size) - 10px);
+  width: calc(var(--square-size) - 10px);
+  box-shadow: #000 1px 1px 3px;
+}
+
+.black {
+  background-color: #000;
+  background: radial-gradient(#333, #000)
+}
+
+.white {
+  background-color: #fff;
+  background: radial-gradient(#fff, #aaa)
+}
+
+.whos-turn {
+  text-transform: capitalize;
+}
+
+.score-board span {
+  padding: 0 10px;
+}
+
+footer {
+  padding-top: 20px;
+}
+
+
+.container {
+  margin: 0 auto;
+  width: 500px;
+  /*   padding: 120px 12px 50px; */
+}
+
+.button {
+  background-color: rgb(0, 128, 0);
+  border: none;
   color: white;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 10px;
+  transition: all .25s;
 }
 
-.App-link {
-  color: #61dafb;
+.button:hover {
+  background-color: rgb(0, 128, 0, .5);
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+
+footer a {
+  color: #ddd;
+  text-decoration: none;
+  transition: all .25s;
+}
+
+footer a:hover {
+  color: #fff;
+  border-bottom: 3px solid #fff;
 }
