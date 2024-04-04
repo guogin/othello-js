@@ -95,7 +95,7 @@ function Board({currentPlayer, boardData, possibleMoves, onPlay}) {
   let content = boardData.map((item, index) => {
     const row = Math.floor(index / 8);
     const column = index % 8;
-    const possibleMove = possibleMoves.find((move) => move.x === column && move.y === row);
+    const possibleMove = possibleMoves.playerMoves.find((move) => move.x === column && move.y === row);
     const isPossibleMove = (possibleMove !== undefined);
 
     return (
@@ -119,7 +119,7 @@ function Board({currentPlayer, boardData, possibleMoves, onPlay}) {
 Board.propTypes = {
   currentPlayer: PropTypes.string,
   boardData: PropTypes.array,
-  possibleMoves: PropTypes.array,
+  possibleMoves: PropTypes.object,
   onPlay: PropTypes.func,
 }
 
@@ -173,7 +173,7 @@ function BoardArea({currentPlayer, boardData, possibleMoves, onPlay, onUndo, onP
   const currentPlayerName = (currentPlayer === BLACK_PLAYER) ? 'Black' : 'White';
   const nrBlackStones = boardData.filter((v) => v === BLACK).length;
   const nrWhiteStones = boardData.filter((v) => v === WHITE).length;
-  const noPossibleMoves = (possibleMoves.length === 0);
+  const noPossibleMoves = (possibleMoves.playerMoves.length === 0);
 
   return (
     <div>
@@ -194,7 +194,7 @@ function BoardArea({currentPlayer, boardData, possibleMoves, onPlay, onUndo, onP
 BoardArea.propTypes = {
   currentPlayer: PropTypes.string,
   boardData: PropTypes.array,
-  possibleMoves: PropTypes.array,
+  possibleMoves: PropTypes.object,
   onPlay: PropTypes.func,
   onUndo: PropTypes.func,
   onPass: PropTypes.func,
@@ -214,18 +214,19 @@ function Game() {
   const possibleMoves = listPossibleMoves(currentBoardData, currentPlayer);
 
   const winningStatus = {
-    isGameEnded: isGameEnded(currentBoardData, currentPlayer),
+    isGameEnded: isGameEnded(currentBoardData, possibleMoves),
     gameResult: judgeWinner(currentBoardData),
   };
 
-  function isGameEnded(boardData, player) {
+  function isGameEnded(boardData, possibleMoves) {
     if (currentBoardData.find((v) => v === EMPTY) === undefined) {
       return true;
     }
-    let possibleMovesFromPlayer = listPossibleMoves(boardData, player);
-    let possibleMovesFromOpponent = listPossibleMoves(boardData, nextPlayer(player));
-    if (possibleMovesFromPlayer.length === 0 && possibleMovesFromOpponent.length === 0) {
-      return true;
+    if (possibleMoves.playerMoves.length === 0) {
+      const opponentMoves = force(possibleMoves.opponentMovesPromise);
+      if (opponentMoves.length === 0) {
+        return true;
+      }
     }
     return false;
   }
@@ -272,7 +273,14 @@ function Game() {
   }
 
   function listPossibleMoves(board, player) {
-    return listAttackingMoves(board, player);
+    return {
+      playerMoves: listAttackingMoves(board, player),
+      opponentMovesPromise: (function(board, player) {
+        return delay(function () {
+          return listAttackingMoves(board, nextPlayer(player));
+        });
+      })(board, player),
+    };
   }
 
   function canAttack(vulnerableCells) {
