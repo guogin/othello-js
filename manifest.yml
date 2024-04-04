@@ -5,3 +5,6 @@ path: build/
 instances: 1
 buildpack: https://github.com/cloudfoundry/staticfile-buildpack.git
 memory: 256M
+routes:
+  routes:
+    - route: othello.cfapps.ap21.hana.ondemand.com

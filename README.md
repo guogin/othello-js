@@ -7,7 +7,7 @@ By: Guo, Yi Qun
 
 ## Play the Game
 
-[Play the Game Online](http://placeholder.com)
+[Play the Game Online](https://othello.cfapps.ap21.hana.ondemand.com/)
 
 ## Getting Started as a Developer
 
