@@ -1,7 +1,8 @@
 # Othello JS
 Othello made with React JS
 
-By: Guo, Yi Qun
+Webpage design is copied from:
+https://github.com/christopherbowers/Othello-JS
 
 ![](screenshot.png)
 
